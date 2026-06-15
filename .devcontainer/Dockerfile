@@ -1,4 +1,4 @@
-FROM maven:3.9.11-eclipse-temurin-25
+FROM maven:3.9.16-eclipse-temurin-26
 
 RUN apt-get update && \
     apt-get install -yqq --no-install-recommends \
