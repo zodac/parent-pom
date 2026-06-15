@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.3
         with:
           fetch-depth: 0 # Needed for pushing tags
           submodules: true
@@ -45,7 +45,7 @@ jobs:
 
       # Set up Java & Maven to execute tests
       - name: Cache local .m2
-        uses: actions/cache@v4
+        uses: actions/cache@v5.0.5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -53,7 +53,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Setup Maven Action
-        uses: s4u/setup-maven-action@v1.18.0
+        uses: s4u/setup-maven-action@v1.20.0
         with:
           checkout-fetch-depth: 0
           java-distribution: "temurin"
@@ -137,7 +137,7 @@ jobs:
 
       - name: Push commit and tag if there were changes
         if: env.has_changes == 'true'
-        uses: ad-m/github-push-action@v0.8.0
+        uses: ad-m/github-push-action@v1.3.0
         with:
           branch: master
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -145,7 +145,7 @@ jobs:
 
       - name: Create GitHub Release
         if: env.has_changes == 'true'
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.21.0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

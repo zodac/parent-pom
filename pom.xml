@@ -78,7 +78,7 @@
         <lombok.version>1.18.46</lombok.version>
         <osgi-annotation.version>8.1.0</osgi-annotation.version>
         <selenium.version>4.44.0</selenium.version>
-        <quarkus.version>3.37.0.CR1</quarkus.version>
+        <quarkus.version>3.36.2</quarkus.version>
 
         <!-- Test 3PP Versions -->
         <assertj-core.version>3.27.7</assertj-core.version>
@@ -887,7 +887,7 @@
                                 <!-- Exclude alpha, beta, milestone, release candidate and SNAPSHOT releases -->
                                 <ignoreVersion>
                                     <type>regex</type>
-                                    <version>.*(-alpha|-beta|-M\d|-RC\d*|-SNAPSHOT).*</version>
+                                    <version>.*(-alpha|-beta|-M\d|CR\d*|-RC\d*|-SNAPSHOT).*</version>
                                 </ignoreVersion>
                             </ignoreVersions>
                         </ruleSet>

@@ -18,12 +18,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.3
         with:
           fetch-depth: 0
           submodules: true
 
-      - uses: DavidAnson/markdownlint-cli2-action@v19.1.0
+      - uses: DavidAnson/markdownlint-cli2-action@v23.2.0
         with:
           config: "code-quality-config/markdown/.markdownlint.json"
           globs: "README.md"
