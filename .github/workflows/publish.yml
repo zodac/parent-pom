@@ -57,8 +57,8 @@ jobs:
         with:
           checkout-fetch-depth: 0
           java-distribution: "temurin"
-          java-version: "25"
-          maven-version: "3.9.11"
+          java-version: "26"
+          maven-version: "3.9.16"
 
       - name: Release version
         run: mvn versions:set -DnewVersion=${{ steps.version.outputs.version }}

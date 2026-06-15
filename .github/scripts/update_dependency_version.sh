@@ -51,6 +51,16 @@ version_gt() {
     [ "$1" != "$2" ] && [ "$(printf '%s\n%s\n' "$1" "$2" | highest_version)" = "$1" ]
 }
 
+# Return 0 (true) if the given tag exists for the official `maven` Docker image,
+# e.g. "3.9.16-eclipse-temurin-26". Used to confirm the devcontainer base image
+# is actually published before bumping a version.
+docker_maven_tag_exists() {
+    local tag="$1" code
+    code="$(curl -s -o /dev/null -w '%{http_code}' \
+        "https://hub.docker.com/v2/repositories/library/maven/tags/${tag}" 2>/dev/null || echo "000")"
+    [ "${code}" = "200" ]
+}
+
 # Replace all occurrences of a literal string in a file (only writes if changed).
 replace_in_file() {
     local file="$1" search="$2" replace="$3"
@@ -71,32 +81,33 @@ replace_in_file() {
 update_java_version() {
     section "Java version"
 
-    # Collect every Java version currently referenced.
+    # Collect every Java version currently referenced (for logging only).
     local -a current=()
     local v
-    v="$(grep -oP '(?<=<java-release>)\d+(?=</java-release>)' "${POM_FILE}" || true)"
+    v="$(grep -oP '(?<=<java-release>)\d+(?=</java-release>)' "${POM_FILE}" 2>/dev/null || true)"
     [ -n "${v}" ] && current+=("${v}")
 
     while IFS= read -r v; do
         [ -n "${v}" ] && current+=("${v}")
     done < <(grep -rhoP '(?<=java-version: ")\d+(?=")' "${WORKFLOW_DIR}" 2>/dev/null || true)
 
-    v="$(grep -oP '(?<=-eclipse-temurin-)\d+' "${DOCKERFILE}" || true)"
-    [ -n "${v}" ] && current+=("${v}")
+    # Read the devcontainer base image so we can verify the combined tag exists.
+    # Maven is updated before Java, so this already reflects the latest Maven.
+    local docker_java docker_maven
+    docker_java="$(grep -oP '(?<=-eclipse-temurin-)\d+' "${DOCKERFILE}" 2>/dev/null || true)"
+    docker_maven="$(grep -oP '(?<=maven:)[0-9]+\.[0-9]+\.[0-9]+' "${DOCKERFILE}" 2>/dev/null || true)"
+    [ -n "${docker_java}" ] && current+=("${docker_java}")
 
     if [ "${#current[@]}" -eq 0 ]; then
         warn "Could not find any Java version references; skipping."
         return 0
     fi
-
-    local current_max
-    current_max="$(printf '%s\n' "${current[@]}" | sort -n | tail -n 1)"
-    log "Current Java versions referenced: ${current[*]} (highest: ${current_max})"
+    log "Current Java versions referenced: ${current[*]}"
 
     # Latest GA Java feature release, via the Adoptium (Temurin) API.
-    local latest
-    latest="$(curl -fsSL https://api.adoptium.net/v3/info/available_releases \
-        | jq -r '.most_recent_feature_release' 2>/dev/null || true)"
+    local adoptium latest
+    adoptium="$(curl -fsSL https://api.adoptium.net/v3/info/available_releases 2>/dev/null || true)"
+    latest="$(printf '%s' "${adoptium}" | jq -r '.most_recent_feature_release' 2>/dev/null || true)"
 
     if ! [[ "${latest}" =~ ^[0-9]+$ ]]; then
         warn "Could not determine latest Java version; skipping."
@@ -104,16 +115,27 @@ update_java_version() {
     fi
     log "Latest available Java major version: ${latest}"
 
-    # Only update if it is a genuine update for *every* place (keep in sync).
-    if [ "${latest}" -le "${current_max}" ]; then
-        log "No Java update available for all locations; leaving unchanged."
+    # Gate 1 (GitHub Actions support): the version must be a published Temurin GA
+    # release, since that is what setup-java / the Maven action installs.
+    if ! printf '%s' "${adoptium}" \
+        | jq -e --argjson v "${latest}" '.available_releases | index($v) != null' >/dev/null 2>&1; then
+        warn "Java ${latest} is not a published Temurin GA release yet; skipping to keep versions in sync."
         return 0
     fi
 
-    log "Updating Java version to ${latest} in all locations."
-    replace_in_file "${POM_FILE}" "<java-release>$(grep -oP '(?<=<java-release>)\d+' "${POM_FILE}")</java-release>" "<java-release>${latest}</java-release>"
+    # Gate 2 (devcontainer support): the combined Maven base image must exist.
+    if [ -n "${docker_maven}" ] && [ -n "${docker_java}" ] \
+        && ! docker_maven_tag_exists "${docker_maven}-eclipse-temurin-${latest}"; then
+        warn "No 'maven:${docker_maven}-eclipse-temurin-${latest}' image published yet; skipping to keep versions in sync."
+        return 0
+    fi
 
+    # Supported everywhere: align every location to the latest version.
+    log "Aligning all locations to Java ${latest}."
     local f cur
+    cur="$(grep -oP '(?<=<java-release>)\d+' "${POM_FILE}" 2>/dev/null || true)"
+    [ -n "${cur}" ] && replace_in_file "${POM_FILE}" "<java-release>${cur}</java-release>" "<java-release>${latest}</java-release>"
+
     for f in "${WORKFLOW_DIR}"/*.y*ml; do
         [ -f "${f}" ] || continue
         while IFS= read -r cur; do
@@ -121,10 +143,9 @@ update_java_version() {
         done < <(grep -oP '(?<=java-version: ")\d+(?=")' "${f}" | sort -u)
     done
 
-    cur="$(grep -oP '(?<=-eclipse-temurin-)\d+' "${DOCKERFILE}")"
-    replace_in_file "${DOCKERFILE}" "-eclipse-temurin-${cur}" "-eclipse-temurin-${latest}"
+    [ -n "${docker_java}" ] && replace_in_file "${DOCKERFILE}" "-eclipse-temurin-${docker_java}" "-eclipse-temurin-${latest}"
 
-    success "Java version updated to ${latest}."
+    success "Java version aligned to ${latest}."
 }
 
 # ---------------------------------------------------------------------------
@@ -150,9 +171,14 @@ update_maven_version() {
         return 0
     fi
 
+    # Read the devcontainer base image so we can verify the combined tag exists.
+    local docker_maven docker_java
+    docker_maven="$(grep -oP '(?<=maven:)[0-9]+\.[0-9]+\.[0-9]+' "${DOCKERFILE}" 2>/dev/null || true)"
+    docker_java="$(grep -oP '(?<=-eclipse-temurin-)\d+' "${DOCKERFILE}" 2>/dev/null || true)"
+
     local current_max
     current_max="$(printf '%s\n' "${current[@]}" | highest_version)"
-    log "Current Maven versions referenced: ${current[*]} (highest: ${current_max})"
+    log "Current Maven versions referenced: ${current[*]}"
 
     # Stay within the current major line (project enforcer requires < next major).
     local major="${current_max%%.*}"
@@ -170,15 +196,20 @@ update_maven_version() {
     fi
     log "Latest available Maven ${major}.x version: ${latest}"
 
-    if ! version_gt "${latest}" "${current_max}"; then
-        log "No Maven update available for all locations; leaving unchanged."
+    # Availability gate (devcontainer support): the combined Maven base image must
+    # exist, otherwise the devcontainer would break. Skip to keep places in sync.
+    if [ -n "${docker_maven}" ] && [ -n "${docker_java}" ] \
+        && ! docker_maven_tag_exists "${latest}-eclipse-temurin-${docker_java}"; then
+        warn "No 'maven:${latest}-eclipse-temurin-${docker_java}' image published yet; skipping to keep versions in sync."
         return 0
     fi
 
-    log "Updating Maven version to ${latest} in all locations."
-    replace_in_file "${POM_FILE}" "<maven-release>${current[0]}</maven-release>" "<maven-release>${latest}</maven-release>"
-
+    # Supported everywhere: align every location to the latest version.
+    log "Aligning all locations to Maven ${latest}."
     local f cur
+    cur="$(grep -oP '(?<=<maven-release>)[0-9]+\.[0-9]+\.[0-9]+' "${POM_FILE}" 2>/dev/null || true)"
+    [ -n "${cur}" ] && replace_in_file "${POM_FILE}" "<maven-release>${cur}</maven-release>" "<maven-release>${latest}</maven-release>"
+
     for f in "${WORKFLOW_DIR}"/*.y*ml; do
         [ -f "${f}" ] || continue
         while IFS= read -r cur; do
@@ -186,10 +217,9 @@ update_maven_version() {
         done < <(grep -oP '(?<=maven-version: ")[0-9]+\.[0-9]+\.[0-9]+(?=")' "${f}" | sort -u)
     done
 
-    cur="$(grep -oP '(?<=maven:)[0-9]+\.[0-9]+\.[0-9]+' "${DOCKERFILE}")"
-    replace_in_file "${DOCKERFILE}" "maven:${cur}" "maven:${latest}"
+    [ -n "${docker_maven}" ] && replace_in_file "${DOCKERFILE}" "maven:${docker_maven}" "maven:${latest}"
 
-    success "Maven version updated to ${latest}."
+    success "Maven version aligned to ${latest}."
 }
 
 # ---------------------------------------------------------------------------
@@ -338,8 +368,10 @@ update_pom_dependencies() {
 main() {
     log "Updating all project dependencies in ${REPO_ROOT}"
 
-    update_java_version
+    # Maven runs before Java so the Java step sees the (possibly updated) Maven
+    # version in the Dockerfile when verifying the combined base image tag.
     update_maven_version
+    update_java_version
     update_github_actions
     update_submodules
     update_pom_dependencies

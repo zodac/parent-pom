@@ -45,29 +45,13 @@ jobs:
         with:
           checkout-fetch-depth: 0
           java-distribution: "temurin"
-          java-version: "25"
-          maven-version: "3.9.11"
+          java-version: "26"
+          maven-version: "3.9.16"
 
-      - name: Update Maven dependency versions
-        run: mvn versions:update-properties
-
-      - name: Check for latest tag in submodule
-        id: update_submodule
-        run: |
-          cd code-quality-config
-          git fetch --tags
-
-          latest_tag=$(git describe --tags "$(git rev-list --tags --max-count=1)")
-          current_tag=$(git describe --tags --exact-match 2>/dev/null || echo "none")
-
-          echo "Latest tag: $latest_tag"
-          echo "Current tag: $current_tag"
-
-          if [ "$latest_tag" != "$current_tag" ]; then
-            echo "Updating submodule to $latest_tag"
-            git checkout "$latest_tag"
-            cd ..
-          fi
+      - name: Update all dependency versions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./.github/scripts/update_dependency_version.sh
 
       - name: Run Java lints and tests with Maven
         run: mvn clean install -Dall
