@@ -910,14 +910,6 @@
                 <artifactId>build-helper-maven-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.sonatype.central</groupId>
-                <artifactId>central-publishing-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
             </plugin>
@@ -977,7 +969,12 @@
             </properties>
         </profile>
 
-        <!-- Profile used to publish the artifact to Maven Central -->
+        <!--
+            Profile used to publish the artifact to Maven Central. Activated with -Dpublish; only
+            then are the Central Publishing extension and GPG signing plugins added to the build (and
+            GPG signing enabled). A normal build (no -Dpublish) does neither, so it stays free of any
+            publishing/signing setup. This is the single flag that controls all publishing behaviour.
+        -->
         <profile>
             <id>maven_publish</id>
             <activation>
@@ -988,6 +985,18 @@
             <properties>
                 <skip-gpg-signing>false</skip-gpg-signing>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <!-- Profile used to execute SonarQube analysis on the project -->
