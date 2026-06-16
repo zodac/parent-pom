@@ -33,6 +33,13 @@
         <url>https://github.com/zodac/parent-pom</url>
     </scm>
 
+    <distributionManagement>
+        <site>
+            <id>github</id>
+            <url>https://github.com/zodac/</url>
+        </site>
+    </distributionManagement>
+
     <properties>
         <!-- Project Properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
