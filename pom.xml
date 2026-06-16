@@ -129,9 +129,9 @@
         <spotbugs-maven-plugin.version>4.10.2.0</spotbugs-maven-plugin.version>
 
         <!-- Linter Properties -->
-        <ci-config-directory>${project.parent.basedir}/code-quality-config/java</ci-config-directory>
+        <ci-config-directory>${project.basedir}/code-quality-config/java</ci-config-directory>
         <checkstyle-file>${ci-config-directory}/checkstyle.xml</checkstyle-file>
-        <license-file>${project.parent.basedir}/code-quality-config/licenses/bsd0.txt</license-file>
+        <license-file>${project.basedir}/code-quality-config/licenses/bsd0.txt</license-file>
         <license-header-definition-file>${ci-config-directory}/license-header-definition.txt</license-header-definition-file>
         <pitest-test-strength-threshold>100</pitest-test-strength-threshold>
         <pmd-ruleset>${ci-config-directory}/pmd-ruleset.xml</pmd-ruleset>
