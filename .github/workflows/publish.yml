@@ -6,8 +6,6 @@ on:
     paths:
       - "pom.xml"
       - "VERSION"
-  repository_dispatch:
-    types: [publish-event]
   workflow_dispatch: # allows manual trigger
 
 permissions:

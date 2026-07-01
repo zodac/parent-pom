@@ -6,22 +6,33 @@ on:
     - cron: "0 3 1 * *"
   workflow_dispatch: # allows manual trigger
 
-permissions:
-  contents: write
-  actions: write
-
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+      security-events: write
     env:
       has_changes: "false"
 
     steps:
+      # Mint a short-lived installation token from the org-owned GitHub App
+      # This token carries `workflows: write`, which the default GITHUB_TOKEN lacks
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3.2.0
+        with:
+          client-id: ${{ secrets.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
       - name: Checkout repository (with submodules)
         uses: actions/checkout@v6.0.3
         with:
           fetch-depth: 0 # Needed for pushing tags
           submodules: true
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Fetch tags
         run: git fetch --tags
@@ -50,7 +61,7 @@ jobs:
 
       - name: Update all dependency versions
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: ./.github/scripts/update_dependency_version.sh
 
       - name: Run Java lints and tests with Maven
@@ -74,12 +85,4 @@ jobs:
         uses: ad-m/github-push-action@v1.3.0
         with:
           branch: master
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Trigger downstream workflow
-        if: env.has_changes == 'true'
-        uses: peter-evans/repository-dispatch@v4.0.1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: zodac/parent-pom
-          event-type: publish-event
+          github_token: ${{ steps.app-token.outputs.token }}
