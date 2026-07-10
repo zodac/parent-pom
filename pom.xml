@@ -84,6 +84,7 @@
         <log4j.version>2.26.0</log4j.version>
         <lombok.version>1.18.46</lombok.version>
         <osgi-annotation.version>8.1.0</osgi-annotation.version>
+        <password4j.version>1.8.4</password4j.version>
         <selenium.version>4.45.0</selenium.version>
         <quarkus.version>3.37.0</quarkus.version>
 
@@ -239,6 +240,11 @@
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
                 <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.password4j</groupId>
+                <artifactId>password4j</artifactId>
+                <version>${password4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
