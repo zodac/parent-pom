@@ -58,14 +58,16 @@ jobs:
           java-version: "26"
           maven-version: "3.9.16"
 
-      - name: Release version
-        run: mvn versions:set -DnewVersion=${{ steps.version.outputs.version }}
-
+      # Run tests/lints/SonarQube against the pristine (committed) pom.xml. If we set the release version first,
+      # `versions:set` leaves pom.xml modified but uncommitted, and SonarQube cannot compute blame.
       - name: Run Java lints and tests with Maven (including SonarQube)
         env:
           SONARQUBE_HOST_URL: ${{ secrets.SONARQUBE_HOST_URL }}
           SONARQUBE_PAT: ${{ secrets.SONARQUBE_RW_PAT }}
-        run: mvn clean install -Dall -Dsonarqube
+        run: mvn clean install -Dall -Dsonarqube -Dsonar.projectVersion=${{ steps.version.outputs.version }}
+
+      - name: Release version
+        run: mvn versions:set -DnewVersion=${{ steps.version.outputs.version }}
 
       - name: Import GPG keys
         env:
