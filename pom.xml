@@ -5,7 +5,7 @@
 
     <groupId>net.zodac</groupId>
     <artifactId>parent-pom</artifactId>
-    <version>1.0.18-SNAPSHOT</version>
+    <version>1.0.19-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>[${project.artifactId}] Project</name>
     <description>Parent POM containing shared configuration and plugin management for zodac.net projects</description>
@@ -242,14 +242,14 @@
                 <version>${log4j.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.password4j</groupId>
-                <artifactId>password4j</artifactId>
-                <version>${password4j.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
                 <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.password4j</groupId>
+                <artifactId>password4j</artifactId>
+                <version>${password4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.errorprone</groupId>
