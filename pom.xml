@@ -82,11 +82,11 @@
         <jbcrypt.version>0.4</jbcrypt.version>
         <jspecify.version>1.0.0</jspecify.version>
         <log4j.version>2.26.1</log4j.version>
-        <lombok.version>1.18.46</lombok.version>
+        <lombok.version>1.18.48</lombok.version>
         <osgi-annotation.version>8.1.0</osgi-annotation.version>
         <password4j.version>1.8.4</password4j.version>
-        <selenium.version>4.48.0</selenium.version>
-        <quarkus.version>3.39.1</quarkus.version>
+        <selenium.version>4.50.0</selenium.version>
+        <quarkus.version>4.0.0.Beta1</quarkus.version>
 
         <!-- Test 3PP Versions -->
         <assertj-core.version>3.27.7</assertj-core.version>
@@ -94,34 +94,34 @@
         <mockito.version>5.23.0</mockito.version>
 
         <!-- Plugin Versions -->
-        <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
+        <build-helper-maven-plugin.version>3.6.2</build-helper-maven-plugin.version>
         <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
-        <exec-maven-plugin.version>3.6.3</exec-maven-plugin.version>
+        <exec-maven-plugin.version>3.6.4</exec-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <jmeter-maven-plugin.version>3.8.0</jmeter-maven-plugin.version>
         <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
-        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
         <maven-dependency-plugin.version>3.11.0</maven-dependency-plugin.version>
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
-        <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
+        <maven-failsafe-plugin.version>3.6.0</maven-failsafe-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
-        <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
+        <maven-install-plugin.version>3.2.0</maven-install-plugin.version>
         <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
         <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
         <maven-site-plugin.version>3.22.0</maven-site-plugin.version>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
-        <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
+        <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
+        <versions-maven-plugin.version>2.22.0</versions-maven-plugin.version>
 
         <!-- Linter 3PP Versions -->
-        <checkstyle.version>14.1.0</checkstyle.version>
+        <checkstyle.version>14.3.0</checkstyle.version>
         <error_prone_core.version>2.50.0</error_prone_core.version>
         <jspecify.version>1.0.1</jspecify.version>
         <licenses.version>1</licenses.version>
-        <nullaway.version>0.14.1</nullaway.version>
+        <nullaway.version>0.14.2</nullaway.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
-        <pmd.version>7.27.0</pmd.version>
+        <pmd.version>7.28.0</pmd.version>
         <spotbugs.version>4.10.4</spotbugs.version>
 
         <!-- Linter Plugin Versions -->
@@ -132,9 +132,9 @@
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
         <pitest-maven.version>1.30.0</pitest-maven.version>
-        <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
         <sortpom-maven-plugin.version>4.0.0</sortpom-maven-plugin.version>
-        <spotbugs-maven-plugin.version>4.10.4.0</spotbugs-maven-plugin.version>
+        <spotbugs-maven-plugin.version>4.10.4.1</spotbugs-maven-plugin.version>
 
         <!-- Linter Properties -->
         <ci-config-directory>${project.basedir}/code-quality-config/java</ci-config-directory>
