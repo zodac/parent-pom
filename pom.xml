@@ -86,7 +86,7 @@
         <osgi-annotation.version>8.1.0</osgi-annotation.version>
         <password4j.version>1.8.4</password4j.version>
         <selenium.version>4.50.0</selenium.version>
-        <quarkus.version>4.0.0.Beta1</quarkus.version>
+        <quarkus.version>3.39.1</quarkus.version>
 
         <!-- Test 3PP Versions -->
         <assertj-core.version>3.27.7</assertj-core.version>
@@ -922,7 +922,7 @@
                                 <!-- Exclude alpha, beta, milestone, release candidate and SNAPSHOT releases -->
                                 <ignoreVersion>
                                     <type>regex</type>
-                                    <version>.*(-alpha|-beta|-M\d|CR\d*|-RC\d*|-SNAPSHOT).*</version>
+                                    <version>.*[-.]((alpha|beta|M\d+|RC\d*|CR\d*|SNAPSHOT)).*</version>
                                 </ignoreVersion>
                             </ignoreVersions>
                         </ruleSet>
