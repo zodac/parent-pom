@@ -51,12 +51,12 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Setup Maven Action
-        uses: s4u/setup-maven-action@v1.21.0
+        uses: s4u/setup-maven-action@v1.22.0
         with:
           checkout-fetch-depth: 0
           java-distribution: "temurin"
-          java-version: "26"
-          maven-version: "3.9.16"
+          java-version: "27"
+          maven-version: "3.10.0"
 
       # Run tests/lints/SonarQube against the pristine (committed) pom.xml. If we set the release version first,
       # `versions:set` leaves pom.xml modified but uncommitted, and SonarQube cannot compute blame.
