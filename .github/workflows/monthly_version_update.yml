@@ -23,7 +23,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v3.3.0
         with:
-          client-id: ${{ secrets.APP_CLIENT_ID }}
+          client-id: ${{ vars.GH_INTEGRATION_APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
@@ -62,7 +62,7 @@ jobs:
       - name: Update all dependency versions
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: ./.github/scripts/update_dependency_version.sh
+        run: ./.github/scripts/update_dependency_versions.sh
 
       - name: Run Java lints and tests with Maven
         run: mvn clean install -Dall

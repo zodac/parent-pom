@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# update_dependency_version.sh
+# update_dependency_versions.sh
 #
 # Updates all dependencies used by this project:
 #   1) Java major version       (pom.xml, GitHub workflows, devcontainer Dockerfile)
